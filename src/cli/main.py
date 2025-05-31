@@ -24,7 +24,7 @@ def test(
 
     browser = BrowserConnection(port=port)
 
-    if browser.test_connection_sync():
+    if browser.test_connection_sync(force=True):
         console.print(f"[green]✓[/green] Successfully connected to Chrome DevTools Protocol on port {port}")
         console.print("[green]✓[/green] Browser connection test passed!")
     else:
