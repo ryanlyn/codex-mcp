@@ -1,9 +1,9 @@
-.PHONY: help install dev-install format lint type-check test test-cov clean all
+.PHONY: help install dev format lint type-check test test-cov clean all
 
 help:
 	@echo "Available commands:"
 	@echo "  make install      - Install production dependencies"
-	@echo "  make dev-install  - Install all dependencies including dev"
+	@echo "  make dev          - Install all dependencies including dev"
 	@echo "  make format       - Format code with ruff"
 	@echo "  make lint         - Lint code with ruff"
 	@echo "  make type-check   - Type check with mypy"
@@ -15,8 +15,9 @@ help:
 install:
 	uv sync --no-dev
 
-dev-install:
+dev:
 	uv sync --all-extras
+	uv pip install -e .
 
 format:
 	uv run ruff format src/
