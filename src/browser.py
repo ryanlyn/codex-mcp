@@ -18,8 +18,10 @@ def get_default_launch_command() -> str:
 class BrowserConnection:
     """Manages browser connection via Chrome DevTools Protocol."""
 
+    base_url: str
+    _connection_status: bool | None
+
     def __init__(self, port: int = DEFAULT_CDP_PORT):
-        self.port = port
         self.base_url = f"http://localhost:{port}"
         self._connection_status: bool | None = None
 

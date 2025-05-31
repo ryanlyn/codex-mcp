@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """Codex CLI tool."""
 
+import asyncio
+
 import typer
 from rich.console import Console
 from rich.panel import Panel
 
+from ..agent import CodexAgent
 from ..browser import DEFAULT_CDP_PORT, BrowserConnection, get_default_launch_command
 
 app = typer.Typer(
@@ -20,11 +23,18 @@ def test(
     port: int = typer.Option(DEFAULT_CDP_PORT, "--port", "-p", help="Chrome DevTools Protocol port"),
 ):
     """Test browser connection."""
+    asyncio.run(test_async(port))
+
+
+async def test_async(
+    port: int = DEFAULT_CDP_PORT,
+):
+    """Test browser connection."""
     console.print(f"[bold]Testing browser connection on port {port}...[/bold]")
 
     browser = BrowserConnection(port=port)
 
-    if browser.test_connection_sync(force=True):
+    if await browser.test_connection(force=True):
         console.print(f"[green]✓[/green] Successfully connected to Chrome DevTools Protocol on port {port}")
         console.print("[green]✓[/green] Browser connection test passed!")
     else:
@@ -36,6 +46,10 @@ def test(
 
         console.print("\n[dim]Note: Make sure all Chrome instances are closed before running this command.[/dim]")
         raise typer.Exit(1)
+
+    codex_agent = CodexAgent(browser_connection=browser)
+    result = await codex_agent.wait_until_logged_in()
+    console.print(result)
 
 
 if __name__ == "__main__":
