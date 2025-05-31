@@ -10,7 +10,7 @@ from .browser import BrowserConnection
 
 
 def get_default_llm():
-    llm = ChatOpenAI(model="gpt-4o")
+    llm = ChatOpenAI(model="gpt-4.1")
     return llm
 
 
@@ -33,7 +33,7 @@ class BrowserAgent:
 
     async def execute_instruction(self, prompt: str) -> str:
         browser_session = self.get_browser_session()
-        agent = Agent(browser_session=browser_session, llm=self.llm, task=prompt)
+        agent = Agent(browser_session=browser_session, llm=self.llm, task=prompt, use_vision=True)
         history: AgentHistoryList = await agent.run()
         final_result = str(history.final_result()) if hasattr(history, "final_result") else str(history)
         return final_result
@@ -69,6 +69,31 @@ class CodexAgent(BrowserAgent):
         The task is completed when the user is logged in and the list of recent codex tasks is visible.
         """
 
+        result = await self.execute_instruction(prompt=instruction)
+        return result
+
+    async def do(self, prompt: str) -> str:
+        instruction = f"""
+        {self.navigate_to(self.BASE_URL)}.
+        {prompt}
+        === Creating tasks ===
+        The main codex input field is what you should use to create new tasks.
+        Tasks are created by typing in the input field and pressing the 'Code' button.
+        The task is created when the task is visible in the list of recent codex tasks.
+        There is one button in the footer of the main input field called that includes 'code environments'.
+        That button can be used to select the environment to use for the task.
+        There is also another button in main input footer with 'branch'.
+        That button is used to search for branches for the tasks to start from.
+        If no branch is specified, use 'main' as the branch.
+
+        === Creating or updating environments ===
+        There are a few buttons in the header of the main codex page.
+        The environments button opens the environments setting page where you can create or update environments.
+        When creating a new environment, use the repository name as the environment name.
+        When updating an environment, do not change the repository or the environment name.
+        Press the 'Save' button to finalise the create or update.
+        Do not in any circumstances delete an environment.
+        """
         result = await self.execute_instruction(prompt=instruction)
         return result
 

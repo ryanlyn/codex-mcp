@@ -13,6 +13,7 @@ app = typer.Typer(
     name="codex-cli",
     help="OpenAI Codex CLI tool",
     add_completion=False,
+    no_args_is_help=True,
 )
 console = Console()
 
